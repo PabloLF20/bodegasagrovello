@@ -14,10 +14,10 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import type { ScheduleRule } from '@/hooks/useScheduleConfig';
+import { AVAILABLE_TIMES } from '@/lib/scheduleConstants';
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
-const AVAILABLE_TIMES = ['10:00', '12:15', '13:15', '17:00', '19:00'];
 
 interface RuleForm {
   name: string;
@@ -301,7 +301,7 @@ export default function ScheduleManager() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button
               onClick={() => saveRule.mutate()}
-              disabled={saveRule.isPending || !form.name || form.times.length === 0}
+              disabled={saveRule.isPending || !form.name || form.times.length === 0 || (!form.all_days && form.days_of_week.length === 0)}
               className="bg-wine text-white hover:opacity-90"
             >
               {saveRule.isPending ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Crear regla'}

@@ -6,8 +6,8 @@ import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MAX_PER_TOUR } from '@/lib/scheduleConstants';
 
-const MAX_PER_TOUR = 30;
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 export default function OccupancyCalendar() {
@@ -29,31 +29,29 @@ export default function OccupancyCalendar() {
     },
   });
 
+  // Map: dateStr → { timeSlot → totalGuests }
   const occupancyMap = useMemo(() => {
-    const map: Record<string, { '10:00': number; '17:00': number }> = {};
+    const map: Record<string, Record<string, number>> = {};
     for (const b of bookings as any[]) {
       const key = b.booking_date;
-      if (!map[key]) map[key] = { '10:00': 0, '17:00': 0 };
-      if (b.booking_time === '10:00' || b.booking_time === '17:00') {
-        map[key][b.booking_time as '10:00' | '17:00'] += b.guests;
-      }
+      if (!map[key]) map[key] = {};
+      map[key][b.booking_time] = (map[key][b.booking_time] ?? 0) + b.guests;
     }
     return map;
   }, [bookings]);
 
   const days = eachDayOfInterval({ start, end });
-  // Monday-based offset
   const firstDayOffset = (getDay(start) + 6) % 7;
 
   function getDayColor(dateStr: string) {
-    const occ = occupancyMap[dateStr];
-    if (!occ) return 'bg-card';
-    const total = occ['10:00'] + occ['17:00'];
-    if (total === 0) return 'bg-card';
-    const bothFull = occ['10:00'] >= MAX_PER_TOUR && occ['17:00'] >= MAX_PER_TOUR;
-    if (bothFull) return 'bg-destructive/20 border-destructive/40';
-    const oneFull = occ['10:00'] >= MAX_PER_TOUR || occ['17:00'] >= MAX_PER_TOUR;
-    if (oneFull || total >= MAX_PER_TOUR) return 'bg-gold/20 border-gold/40';
+    const slots = occupancyMap[dateStr];
+    if (!slots) return 'bg-card';
+    const values = Object.values(slots) as number[];
+    if (values.length === 0) return 'bg-card';
+    const anyFull = values.some((v) => v >= MAX_PER_TOUR);
+    const allFull = values.every((v) => v >= MAX_PER_TOUR) && values.length > 1;
+    if (allFull) return 'bg-destructive/20 border-destructive/40';
+    if (anyFull) return 'bg-gold/20 border-gold/40';
     return 'bg-forest/10 border-forest/30';
   }
 
@@ -80,7 +78,7 @@ export default function OccupancyCalendar() {
         ))}
         {days.map((day) => {
           const dateStr = format(day, 'yyyy-MM-dd');
-          const occ = occupancyMap[dateStr];
+          const slots = occupancyMap[dateStr];
           return (
             <div
               key={dateStr}
@@ -90,12 +88,11 @@ export default function OccupancyCalendar() {
               )}
             >
               <div className="font-medium text-foreground">{format(day, 'd')}</div>
-              {occ && (
-                <>
-                  <div className="text-muted-foreground">10h: {occ['10:00']}/{MAX_PER_TOUR}</div>
-                  <div className="text-muted-foreground">17h: {occ['17:00']}/{MAX_PER_TOUR}</div>
-                </>
-              )}
+              {slots && Object.entries(slots).sort().map(([time, guests]) => (
+                <div key={time} className="text-muted-foreground">
+                  {time}: {guests}/{MAX_PER_TOUR}
+                </div>
+              ))}
             </div>
           );
         })}

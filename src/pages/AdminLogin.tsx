@@ -27,7 +27,7 @@ export default function AdminLogin() {
       if (error) throw error;
       navigate('/admin/dashboard', { replace: true });
     } catch (err: any) {
-      toast.error(err.message || 'Credenciales incorrectas');
+      toast.error('Credenciales incorrectas. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }

@@ -21,12 +21,6 @@ export default function AdminDashboard() {
       if (!session) navigate('/admin', { replace: true });
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-      if (!session) navigate('/admin', { replace: true });
-    });
-
     return () => subscription.unsubscribe();
   }, [navigate]);
 

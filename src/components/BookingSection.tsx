@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAvailability } from '@/hooks/useAvailability';
 import { useScheduleConfig } from '@/hooks/useScheduleConfig';
@@ -48,6 +49,7 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 export function BookingSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -73,6 +75,7 @@ export function BookingSection() {
         message: data.message || null,
       });
       if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['availability'] });
       setSubmitted(true);
     } catch (err: any) {
       toast.error('Error al enviar la reserva. Inténtalo de nuevo.');
@@ -261,7 +264,7 @@ export function BookingSection() {
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
                             if (date < today) return true;
-                            if (schedLoading) return false;
+                            if (schedLoading) return true;
                             return !isDayOpen(date);
                           }}
                           initialFocus

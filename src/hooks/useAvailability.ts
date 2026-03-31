@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { MAX_PER_TOUR } from '@/lib/scheduleConstants';
+
+export { MAX_PER_TOUR };
 
 export interface Availability {
   booking_time: string;
   total_guests: number;
 }
 
-const MAX_PER_TOUR = 30;
-
 export function useAvailability(date: Date | undefined) {
-  const dateStr = date ? date.toISOString().split('T')[0] : null;
+  const dateStr = date ? format(date, 'yyyy-MM-dd') : null;
 
   const query = useQuery({
     queryKey: ['availability', dateStr],
@@ -30,7 +32,7 @@ export function useAvailability(date: Date | undefined) {
   };
 
   const isFull = (time: string) => getOccupancy(time) >= MAX_PER_TOUR;
-  const spotsLeft = (time: string) => MAX_PER_TOUR - getOccupancy(time);
+  const spotsLeft = (time: string) => Math.max(0, MAX_PER_TOUR - getOccupancy(time));
 
-  return { ...query, getOccupancy, isFull, spotsLeft };
+  return { ...query, isFull, spotsLeft };
 }

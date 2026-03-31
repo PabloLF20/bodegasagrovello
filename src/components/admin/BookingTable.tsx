@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useScheduleConfig } from '@/hooks/useScheduleConfig';
+import { AVAILABLE_TIMES } from '@/lib/scheduleConstants';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -33,7 +34,6 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-destructive/10 text-destructive border-destructive/30',
 };
 
-const ALL_TIMES = ['10:00', '12:15', '13:15', '17:00', '19:00'];
 
 interface BookingFormData {
   name: string;
@@ -165,7 +165,7 @@ export default function BookingTable() {
 
   const tourTimes = form.booking_date
     ? getTimesForDate(new Date(form.booking_date + 'T00:00'))
-    : ALL_TIMES;
+    : [...AVAILABLE_TIMES];
 
   return (
     <div className="space-y-4">
