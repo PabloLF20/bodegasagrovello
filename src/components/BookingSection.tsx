@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { useAvailability } from '@/hooks/useAvailability';
+import { useScheduleConfig } from '@/hooks/useScheduleConfig';
 import { toast } from 'sonner';
 
 const VISIT_TYPES = [
@@ -44,17 +45,6 @@ const bookingSchema = z.object({
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
-const DEFAULT_TIMES = ['10:00', '17:00'];
-const SPECIAL_TIMES = ['12:15', '13:15', '19:00'];
-
-function getTimesForDate(date: Date | undefined): string[] {
-  if (!date) return DEFAULT_TIMES;
-  const m = date.getMonth(); // 0-indexed, April = 3
-  const d = date.getDate();
-  if (m === 3 && d >= 1 && d <= 5) return SPECIAL_TIMES;
-  return DEFAULT_TIMES;
-}
-
 export function BookingSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -66,6 +56,7 @@ export function BookingSection() {
 
   const selectedDate = form.watch('date');
   const { isFull, spotsLeft, isLoading: availLoading } = useAvailability(selectedDate);
+  const { getTimesForDate, isDayOpen, isLoading: schedLoading } = useScheduleConfig();
   const tourTimes = getTimesForDate(selectedDate);
 
   async function onSubmit(data: BookingFormValues) {
@@ -266,7 +257,13 @@ export function BookingSection() {
                             field.onChange(d);
                             form.setValue('time', '');
                           }}
-                          disabled={(date) => date < new Date()}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            if (date < today) return true;
+                            if (schedLoading) return false;
+                            return !isDayOpen(date);
+                          }}
                           initialFocus
                           className="p-3 pointer-events-auto"
                         />

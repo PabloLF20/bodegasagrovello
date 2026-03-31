@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import BookingTable from '@/components/admin/BookingTable';
 import OccupancyCalendar from '@/components/admin/OccupancyCalendar';
+import ScheduleManager from '@/components/admin/ScheduleManager';
 import type { Session } from '@supabase/supabase-js';
 
 export default function AdminDashboard() {
@@ -53,12 +54,16 @@ export default function AdminDashboard() {
           <TabsList>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="calendar">Calendario</TabsTrigger>
+            <TabsTrigger value="schedule">Horarios</TabsTrigger>
           </TabsList>
           <TabsContent value="bookings" className="mt-6">
             <BookingTable />
           </TabsContent>
           <TabsContent value="calendar" className="mt-6">
             <OccupancyCalendar />
+          </TabsContent>
+          <TabsContent value="schedule" className="mt-6">
+            <ScheduleManager />
           </TabsContent>
         </Tabs>
       </main>

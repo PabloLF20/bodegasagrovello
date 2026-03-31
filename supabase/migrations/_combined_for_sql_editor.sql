@@ -117,3 +117,34 @@ $$;
 CREATE TRIGGER trg_validate_booking
   BEFORE INSERT OR UPDATE ON public.bookings
   FOR EACH ROW EXECUTE FUNCTION public.validate_booking();
+
+-- ============================================================
+-- schedule_config: admin-configurable visit schedule rules
+-- ============================================================
+CREATE TABLE public.schedule_config (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  days_of_week integer[],
+  times text[] NOT NULL,
+  start_date date,
+  end_date date,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.schedule_config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read schedule_config"
+  ON public.schedule_config FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated can manage schedule_config"
+  ON public.schedule_config FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Initial schedule rules
+INSERT INTO public.schedule_config (name, days_of_week, times, start_date, end_date, active) VALUES
+  ('Semana Santa 2026', NULL, ARRAY['12:15','13:15','19:00'], '2026-04-01', '2026-04-05', true),
+  ('Horario regular', ARRAY[0,6], ARRAY['12:15','13:15'], '2026-04-06', NULL, true);

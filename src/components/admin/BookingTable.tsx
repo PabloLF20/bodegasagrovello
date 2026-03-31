@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useScheduleConfig } from '@/hooks/useScheduleConfig';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Pendiente',
@@ -32,17 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: 'bg-destructive/10 text-destructive border-destructive/30',
 };
 
-const DEFAULT_TIMES = ['10:00', '17:00'];
-const SPECIAL_TIMES = ['12:15', '13:15', '19:00'];
-
-function getTimesForDateStr(dateStr: string): string[] {
-  if (!dateStr) return DEFAULT_TIMES;
-  const d = new Date(dateStr + 'T00:00');
-  const m = d.getMonth();
-  const day = d.getDate();
-  if (m === 3 && day >= 1 && day <= 5) return SPECIAL_TIMES;
-  return DEFAULT_TIMES;
-}
+const ALL_TIMES = ['10:00', '12:15', '13:15', '17:00', '19:00'];
 
 interface BookingFormData {
   name: string;
@@ -76,6 +67,7 @@ export default function BookingTable() {
   const [form, setForm] = useState<BookingFormData>(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { getTimesForDate } = useScheduleConfig();
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['admin-bookings', statusFilter, dateFilter],
@@ -171,7 +163,9 @@ export default function BookingTable() {
     setDialogOpen(true);
   }
 
-  const tourTimes = getTimesForDateStr(form.booking_date);
+  const tourTimes = form.booking_date
+    ? getTimesForDate(new Date(form.booking_date + 'T00:00'))
+    : ALL_TIMES;
 
   return (
     <div className="space-y-4">
