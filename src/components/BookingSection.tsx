@@ -44,7 +44,16 @@ const bookingSchema = z.object({
 
 type BookingFormValues = z.infer<typeof bookingSchema>;
 
-const TOUR_TIMES = ['10:00', '17:00'] as const;
+const DEFAULT_TIMES = ['10:00', '17:00'];
+const SPECIAL_TIMES = ['12:15', '13:15', '19:00'];
+
+function getTimesForDate(date: Date | undefined): string[] {
+  if (!date) return DEFAULT_TIMES;
+  const m = date.getMonth(); // 0-indexed, April = 3
+  const d = date.getDate();
+  if (m === 3 && d >= 1 && d <= 5) return SPECIAL_TIMES;
+  return DEFAULT_TIMES;
+}
 
 export function BookingSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -57,6 +66,7 @@ export function BookingSection() {
 
   const selectedDate = form.watch('date');
   const { isFull, spotsLeft, isLoading: availLoading } = useAvailability(selectedDate);
+  const tourTimes = getTimesForDate(selectedDate);
 
   async function onSubmit(data: BookingFormValues) {
     setSubmitting(true);
@@ -215,8 +225,11 @@ export function BookingSection() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1">1 persona</SelectItem>
-                        <SelectItem value="2">2 personas</SelectItem>
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                          <SelectItem key={n} value={String(n)}>
+                            {n} {n === 1 ? 'persona' : 'personas'}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -281,7 +294,7 @@ export function BookingSection() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {TOUR_TIMES.map((t) => {
+                        {tourTimes.map((t) => {
                           const full = isFull(t);
                           const left = spotsLeft(t);
                           return (
