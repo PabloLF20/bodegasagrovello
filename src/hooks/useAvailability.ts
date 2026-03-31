@@ -6,7 +6,7 @@ export interface Availability {
   total_guests: number;
 }
 
-const MAX_PER_TOUR = 15;
+const MAX_PER_TOUR = 30;
 
 export function useAvailability(date: Date | undefined) {
   const dateStr = date ? date.toISOString().split('T')[0] : null;
