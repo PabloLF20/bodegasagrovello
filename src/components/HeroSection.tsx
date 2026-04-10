@@ -42,7 +42,7 @@ export function HeroSection() {
           Albariño de tradición atlántica
         </p>
         <p className="text-base md:text-lg text-white/70 mt-4 max-w-xl mx-auto leading-relaxed">
-          Una bodega familiar en el corazón de Rías Baixas elaborando Albariño desde 1999.
+          Una bodega familiar en el corazón de Rías Baixas elaborando Albariño desde 1996.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
           <a
