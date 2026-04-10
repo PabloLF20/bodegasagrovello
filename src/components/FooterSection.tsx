@@ -8,7 +8,7 @@ export function FooterSection() {
           <div>
             <h3 className="font-serif text-2xl font-bold mb-4">AgroVello</h3>
             <p className="text-primary-foreground/70 text-sm leading-relaxed">
-              Bodega familiar en O Grove, Rías Baixas. Elaborando Albariño desde 1999.
+              Bodega familiar en O Grove, Rías Baixas. Elaborando Albariño desde 1996.
             </p>
           </div>
 

@@ -16,7 +16,7 @@ export function AboutSection() {
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mb-20">
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p>
-              Somos una bodega familiar fundada en 1999, situada en O Grove, en pleno corazón de la Denominación de Origen Rías Baixas.
+              Somos una bodega familiar fundada en 1996, situada en O Grove, en pleno corazón de la Denominación de Origen Rías Baixas.
             </p>
             <p>
               Desde nuestros inicios nos hemos dedicado a la elaboración de Albariño 100%, trabajando con uva procedente de viñedos propios y cuidando cada etapa del proceso, desde el cultivo de la vid hasta el embotellado.
