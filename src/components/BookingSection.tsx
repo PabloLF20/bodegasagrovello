@@ -64,17 +64,32 @@ export function BookingSection() {
   async function onSubmit(data: BookingFormValues) {
     setSubmitting(true);
     try {
+      const bookingDate = format(data.date, 'yyyy-MM-dd');
       const { error } = await supabase.from('bookings').insert({
         name: data.name,
         email: data.email,
         phone: data.phone,
         guests: parseInt(data.guests),
-        booking_date: format(data.date, 'yyyy-MM-dd'),
+        booking_date: bookingDate,
         booking_time: data.time,
         visit_type: data.visit_type,
         message: data.message || null,
       });
       if (error) throw error;
+
+      supabase.functions.invoke('notify-new-booking', {
+        body: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          guests: data.guests,
+          booking_date: bookingDate,
+          booking_time: data.time,
+          visit_type: data.visit_type,
+          message: data.message || null,
+        },
+      }).catch((err) => console.error('Notification error:', err));
+
       queryClient.invalidateQueries({ queryKey: ['availability'] });
       setSubmitted(true);
     } catch (err: any) {

@@ -88,9 +88,21 @@ export default function BookingTable() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, booking }: { id: string; status: string; booking?: any }) => {
       const { error } = await supabase.from('bookings').update({ status }).eq('id', id);
       if (error) throw error;
+      if (status === 'confirmed' && booking) {
+        supabase.functions.invoke('send-booking-confirmation', {
+          body: {
+            name: booking.name,
+            email: booking.email,
+            booking_date: booking.booking_date,
+            booking_time: booking.booking_time,
+            visit_type: booking.visit_type,
+            guests: booking.guests,
+          },
+        }).catch((err) => console.error('Confirmation email error:', err));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
@@ -208,6 +220,7 @@ export default function BookingTable() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Recibida</TableHead>
                 <TableHead>Fecha</TableHead>
                 <TableHead>Hora</TableHead>
                 <TableHead>Nombre</TableHead>
@@ -222,6 +235,9 @@ export default function BookingTable() {
             <TableBody>
               {bookings.map((b: any) => (
                 <TableRow key={b.id}>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                    {b.created_at ? format(new Date(b.created_at), 'dd MMM yyyy HH:mm', { locale: es }) : '—'}
+                  </TableCell>
                   <TableCell>{format(new Date(b.booking_date + 'T00:00'), 'dd MMM yyyy', { locale: es })}</TableCell>
                   <TableCell>{b.booking_time}</TableCell>
                   <TableCell className="font-medium">{b.name}</TableCell>
@@ -240,7 +256,7 @@ export default function BookingTable() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateStatus.mutate({ id: b.id, status: 'confirmed' })}
+                          onClick={() => updateStatus.mutate({ id: b.id, status: 'confirmed', booking: b })}
                           className="text-xs"
                         >
                           Confirmar
