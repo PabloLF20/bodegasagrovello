@@ -50,7 +50,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'AgroVello Reservas <reservas@agrovello.com>',
+        from: 'AgroVello Reservas <reservas@bodegasagrovello.com>',
         to: [TO_EMAIL],
         subject: `Nueva reserva — ${booking.name} · ${booking.booking_date} ${booking.booking_time}`,
         html,

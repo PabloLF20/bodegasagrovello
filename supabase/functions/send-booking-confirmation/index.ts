@@ -33,7 +33,7 @@ serve(async (req) => {
         <!-- Cabecera con logo -->
         <div style="background: #2c1810; padding: 32px; text-align: center;">
           <img
-            src="https://agrovello.com/logo-horizontal.png"
+            src="https://bodegasagrovello.com/logo-horizontal.png"
             alt="Bodega AgroVello"
             style="max-width: 220px; height: auto; display: block; margin: 0 auto;"
           />
@@ -122,7 +122,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Bodega AgroVello <reservas@agrovello.com>',
+        from: 'Bodega AgroVello <reservas@bodegasagrovello.com>',
         to: [booking.email],
         subject: `Reserva confirmada — ${formattedDate} a las ${booking.booking_time}`,
         html,
