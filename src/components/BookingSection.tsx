@@ -88,6 +88,9 @@ export function BookingSection() {
           visit_type: data.visit_type,
           message: data.message || null,
         },
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
       }).catch((err) => console.error('Notification error:', err));
 
       queryClient.invalidateQueries({ queryKey: ['availability'] });

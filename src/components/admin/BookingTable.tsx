@@ -101,6 +101,9 @@ export default function BookingTable() {
             visit_type: booking.visit_type,
             guests: booking.guests,
           },
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
         }).catch((err) => console.error('Confirmation email error:', err));
       }
     },
