@@ -12,9 +12,8 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import type { ScheduleRule } from '@/hooks/useScheduleConfig';
-import { AVAILABLE_TIMES } from '@/lib/scheduleConstants';
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -44,6 +43,7 @@ export default function ScheduleManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<RuleForm>(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [newTime, setNewTime] = useState('');
   const queryClient = useQueryClient();
 
   const { data: rules = [], isLoading } = useQuery({
@@ -139,13 +139,14 @@ export default function ScheduleManager() {
     }));
   }
 
-  function toggleTime(time: string) {
-    setForm((f) => ({
-      ...f,
-      times: f.times.includes(time)
-        ? f.times.filter((t) => t !== time)
-        : [...f.times, time].sort(),
-    }));
+  function addTime() {
+    if (!newTime || form.times.includes(newTime)) return;
+    setForm((f) => ({ ...f, times: [...f.times, newTime].sort() }));
+    setNewTime('');
+  }
+
+  function removeTime(time: string) {
+    setForm((f) => ({ ...f, times: f.times.filter((t) => t !== time) }));
   }
 
   function formatDate(d: string | null) {
@@ -257,16 +258,42 @@ export default function ScheduleManager() {
 
             <div className="space-y-2">
               <Label>Horarios disponibles</Label>
-              <div className="flex flex-wrap gap-3">
-                {AVAILABLE_TIMES.map((t) => (
-                  <label key={t} className="flex items-center gap-1.5 cursor-pointer">
-                    <Checkbox
-                      checked={form.times.includes(t)}
-                      onCheckedChange={() => toggleTime(t)}
-                    />
-                    <span className="text-sm">{t}</span>
-                  </label>
+              <div className="flex flex-wrap gap-2 min-h-[32px]">
+                {form.times.length === 0 && (
+                  <span className="text-sm text-muted-foreground">Sin horarios añadidos</span>
+                )}
+                {form.times.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-sm bg-background"
+                  >
+                    {t}
+                    <button
+                      type="button"
+                      onClick={() => removeTime(t)}
+                      className="ml-1 hover:text-destructive transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
                 ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="time"
+                  value={newTime}
+                  onChange={(e) => setNewTime(e.target.value)}
+                  className="w-32"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={addTime}
+                  disabled={!newTime || form.times.includes(newTime)}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Añadir hora
+                </Button>
               </div>
             </div>
 
