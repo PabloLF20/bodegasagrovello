@@ -9,3 +9,6 @@ dist-ssr
 
 .DS_Store
 ._*
+
+# Caché local de la CLI de Supabase
+supabase/.temp/
